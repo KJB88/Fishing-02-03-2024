@@ -41,8 +41,8 @@ public class PlayerController : MonoBehaviour
             { "powerMod", powerMod },
             { "gainMod", gainMod },
             { "reelSpeed", reelSpeed },
-            {"reelPower", reelPower },
-            {"maxLineTension", maxLineTension }
+            { "reelPower", reelPower },
+            { "maxLineTension", maxLineTension }
         };
 
         fsm = new FSM();

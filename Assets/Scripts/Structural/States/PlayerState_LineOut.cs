@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
 
 public class PlayerState_LineOut : State
 {
     Transform player;
+    Bobber bobber;
 
     public PlayerState_LineOut(FSM fsm) : base(fsm) { }
 
@@ -23,7 +22,7 @@ public class PlayerState_LineOut : State
     {
         if (Input.GetMouseButton(0))
         {
-
+            
         }
     }
 }
