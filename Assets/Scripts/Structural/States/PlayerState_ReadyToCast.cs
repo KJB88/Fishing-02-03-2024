@@ -8,7 +8,7 @@ public class PlayerState_ReadyToCast : State
     // Dependencies
     Bobber bobber;
     Transform cursor;
-
+    PowerView _view;
     // Cache main for perf
     Camera mainCam;
 
@@ -21,6 +21,7 @@ public class PlayerState_ReadyToCast : State
 
     public override void OnStateEnter(Dictionary<string, object> blackboard)
     {
+        //Debug.Log("Entering PlayerState_ReadyToCast");
         object obj;
         if (blackboard.TryGetValue("bobber", out obj))
             bobber = (Bobber)obj;
@@ -34,7 +35,10 @@ public class PlayerState_ReadyToCast : State
         if (blackboard.TryGetValue("diff", out obj))
             diff = (Vector2)obj;
 
-        // Reset Bobber;
+        if (blackboard.TryGetValue("powerView", out obj))
+            _view = (PowerView)obj;
+
+        _view.PowerText.text = "Hold LMB to power up your cast!";
         Reset();
     }
 
@@ -66,9 +70,9 @@ public class PlayerState_ReadyToCast : State
         cursor.gameObject.SetActive(true);
         cursor.position = clickPoint;
 
-        diff = clickPoint - bobber.GetPosition();
+        diff = clickPoint - bobber.GetDefaultPosition();
         if (blackboard.TryGetValue("diff", out _))
-            blackboard["diff"] = clickPoint;
+            blackboard["diff"] = diff;
         else
             blackboard.Add("diff", diff);
 

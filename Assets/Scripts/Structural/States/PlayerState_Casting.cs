@@ -17,10 +17,13 @@ public class PlayerState_Casting : State
     float powerMod;
     float powerBase;
 
+    bool held = true;
+
     public PlayerState_Casting(FSM fsm) : base(fsm) { }
 
     public override void OnStateEnter(Dictionary<string, object> blackboard)
     {
+        //Debug.Log("Entering PlayerState_Casting");
         object obj;
         if (blackboard.TryGetValue("bobber", out obj))
             bobber = (Bobber)obj;
@@ -50,13 +53,14 @@ public class PlayerState_Casting : State
 
     public override void UpdateState(Dictionary<string, object> blackboard)
     {
-        AccumulatePower();
+        if (held)
+            AccumulatePower();
 
         // Reset working vars
         if (Input.GetMouseButtonUp(0))
         {
             CastLine();
-            fsm.SetState(new PlayerState_LineOut(fsm), blackboard);
+            held = false;
         }
     }
 

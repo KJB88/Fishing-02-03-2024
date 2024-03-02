@@ -31,7 +31,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6661866850429311567
 SpriteRenderer:
@@ -98,3 +98,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bobber: {fileID: 0}
+  _view: {fileID: 0}
+  cursor: {fileID: 0}
+  maxPower: 20
+  powerMod: 2
+  gainMod: 2
+  powerBase: 2
+  reelSpeed: 2.5
+  reelPower: 2
+  maxLineTension: 20

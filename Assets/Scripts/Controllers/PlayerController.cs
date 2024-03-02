@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour, ISubscriber
 {
 
     [SerializeField] Bobber bobber;
@@ -30,6 +31,9 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        MessageBroker.RegisterSubscriber("FishCaught", this);
+        MessageBroker.RegisterSubscriber("BobberStopped", this);
+
         blackboard = new Dictionary<string, object>
         {
             {"player", transform },
@@ -55,10 +59,24 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
             Reset();
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
     }
 
     private void Reset()
     {
         fsm.SetState(new PlayerState_ReadyToCast(fsm), blackboard);
+    }
+
+    public bool Receive(Message msg)
+    {
+        if (msg.MessageType == "FishCaught")
+            Reset();
+
+        else if (msg.MessageType == "BobberStopped")
+            Reset();
+
+        return false;
     }
 }

@@ -7,11 +7,10 @@ public class Bobber : MonoBehaviour
 
     [SerializeField] Vector2 defaultPosition = Vector2.zero;
 
-    bool isFlying = false;
+    bool isTravelling = false;
 
     private void Start()
     {
-        SetDefaultPosition(transform.position);
         lineRenderer.sortingOrder = 999;
         lineRenderer.enabled = false; // Disabled for now
     }
@@ -19,11 +18,11 @@ public class Bobber : MonoBehaviour
     public Vector2 GetPosition()
        => transform.position;
 
+    public Vector2 GetDefaultPosition()
+   => defaultPosition;
+
     public void AddImmediateForce(Vector2 power)
-    {
-        rigidBody.AddForce(power);
-        isFlying = true;
-    }
+        => rigidBody.AddForce(power);
 
     public void UpdateLineRendererPosition(int index, Vector2 pos)
     => lineRenderer.SetPosition(index, pos);
@@ -34,33 +33,25 @@ public class Bobber : MonoBehaviour
         ResetBobberPosition();
     }
 
-    private void Update()
-    {
-        if (isFlying)
-            if (rigidBody.velocity.magnitude <= 0.03f)
-            {
-                ResetBobberVelocity();
-                isFlying = false;
-                gameObject.layer = 6;
-            }
-    }
-
-    void SetDefaultPosition(Vector2 newPos)
-    => defaultPosition = newPos;
+    //private void Update()
+    //{
+    //    if (rigidBody.velocity.magnitude <= 0.03)
+    //    {
+    //        if (isTravelling)
+    //        {
+    //            MessageBroker.SendMessage(new Message("BobberStopped"));
+    //            isTravelling = false;
+    //        }
+    //    }
+    //    else if (rigidBody.velocity.magnitude > 0.03)
+    //    {
+    //        isTravelling = true;
+    //    }
+    //}
 
     void ResetBobberPosition()
         => transform.position = defaultPosition;
 
     void ResetBobberVelocity()
         => rigidBody.velocity = Vector2.zero;
-
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        GameObject fish = collision.gameObject;
-        if (fish.layer == 6)
-        {
-            // TODO - Enter Fish Clash
-        }
-    }
 }
