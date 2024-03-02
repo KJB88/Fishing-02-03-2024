@@ -6,13 +6,16 @@ public class PlayerController : MonoBehaviour
 { 
     [SerializeField] Bobber bobber;
     [SerializeField] PowerView _view;
+    [SerializeField] Transform cursor;
+
     Camera mainCam;
 
     bool held = false;
     float power = 0.0f;
     float maxPower = 20.0f;
     float powerMod = 10.0f;
-    Vector2 dir = Vector2.zero;
+    float gainMod = 2.0f;
+
     Vector2 diff = Vector2.zero;
     Vector2 clickPoint;
 
@@ -44,18 +47,25 @@ public class PlayerController : MonoBehaviour
 
     private void BeginCasting()
     {
-        CalculateDirection();
+        // Register click point to lock it in
+        clickPoint = mainCam.ScreenToWorldPoint(Input.mousePosition);
 
-        Debug.Log("MB Down!");
+        // Activate landing cursor
+        cursor.gameObject.SetActive(true);
+        cursor.position = clickPoint;
+
+        diff = clickPoint - bobber.GetPosition();
+
+        // Begin accummulator
         held = true;
 
-        bobber.UpdateLineRendererPosition(0, bobber.transform.position);
+        bobber.UpdateLineRendererPosition(0, bobber.GetPosition());
     }
 
     private void AccumulatePower()
     {
         // Power acc.
-        power += (2.5f *powerMod) * Time.deltaTime;
+        power += (2.5f *powerMod) * (Time.deltaTime * gainMod);
         power = Mathf.Clamp(power, 1.0f, maxPower * powerMod);
 
         float normalizedVal = power / (maxPower * powerMod);
@@ -66,30 +76,27 @@ public class PlayerController : MonoBehaviour
 
         // LineRenderer
         bobber.UpdateLineRendererPosition(1, (Vector2)bobber.transform.position + (diff * normalizedVal));
-        //lineRenderer.SetPosition(1, clickPoint); // Static line
 
     }
 
     private void CastLine()
     {
-        Debug.Log("MB Up!");
+        // Deactivate accummulator
         held = false;
+
+        // Calculate voice
+        Vector2 dir = diff.normalized;
         bobber.AddImmediateForce(dir * power);
+
+        // Reset power
         power = 0.0f;
+
+        // Disable cursor
+        cursor.gameObject.SetActive(false);
     }
 
     private void Reset()
     {
-        Debug.Log("Resetting!");
         bobber.ResetBobber();
-    }
-
-    void CalculateDirection()
-    {
-        clickPoint = mainCam.ScreenToWorldPoint(Input.mousePosition);
-
-        diff = clickPoint - bobber.GetPosition();
-        dir = diff.normalized;
-        Debug.Log("DIR: " + dir);
     }
 }

@@ -11,6 +11,7 @@ public class Bobber : MonoBehaviour
     {
         SetDefaultPosition(transform.position);
         lineRenderer.sortingOrder = 999;
+        lineRenderer.enabled = false; // Disabled for now
     }
 
     public Vector2 GetPosition()
