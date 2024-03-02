@@ -10,7 +10,7 @@ public class FishController : MonoBehaviour
     void Start()
     {
         moveSpeed = Random.Range(0.5f, 3.0f);
-        StartCoroutine("CR_Wander");
+        //StartCoroutine("CR_Wander");
     }
 
     // Update is called once per frame

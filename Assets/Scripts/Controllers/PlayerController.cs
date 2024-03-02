@@ -1,102 +1,51 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 { 
+    
     [SerializeField] Bobber bobber;
     [SerializeField] PowerView _view;
     [SerializeField] Transform cursor;
+    FSM fsm;
 
-    Camera mainCam;
+    readonly Dictionary<string, object> blackboard
+        = new Dictionary<string, object>();
 
-    bool held = false;
-    float power = 0.0f;
-    float maxPower = 20.0f;
-    float powerMod = 10.0f;
-    float gainMod = 2.0f;
-
-    Vector2 diff = Vector2.zero;
-    Vector2 clickPoint;
-
+    [Tooltip("The maximum power achievable.")]
+    [SerializeField] float maxPower = 20.0f;
+    [Tooltip("The factor by which the overall power output is multiplied by.")]
+    [SerializeField] float powerMod = 5.0f;
+    [Tooltip("The rate of gain by which the power bar fills up.")]
+    [SerializeField] float gainMod = 2.0f;
+    [Tooltip("The default base rate of power.")]
+    [SerializeField] float powerBase = 2.0f;
     private void Start()
     {
-        mainCam = Camera.main; // Cache camera
+        fsm = new FSM(new PlayerState_ReadyToCast(fsm)); // TODO: Cache states
+
+        blackboard.Add("bobber", bobber);
+        blackboard.Add("powerView", _view);
+        blackboard.Add("cursor", cursor);
+
+        blackboard.Add("powerBase", gainMod);
+        blackboard.Add("maxPower", maxPower);
+        blackboard.Add("powerMod", powerMod);
+        blackboard.Add("gainMod", gainMod);
     }
+
     void Update()
     {
-        // Active trigger
-        if (Input.GetMouseButtonDown(0))
-        {
-            Reset();
-            BeginCasting();
-        }
+        fsm.UpdateState();
 
-        // Accumulator
-        if (held)
-            AccumulatePower();
-
-        // Reset working vars
-        if (Input.GetMouseButtonUp(0))
-            CastLine();
-
-        // Reset
         if (Input.GetKeyDown(KeyCode.Space))
             Reset();
     }
 
-    private void BeginCasting()
-    {
-        // Register click point to lock it in
-        clickPoint = mainCam.ScreenToWorldPoint(Input.mousePosition);
-
-        // Activate landing cursor
-        cursor.gameObject.SetActive(true);
-        cursor.position = clickPoint;
-
-        diff = clickPoint - bobber.GetPosition();
-
-        // Begin accummulator
-        held = true;
-
-        bobber.UpdateLineRendererPosition(0, bobber.GetPosition());
-    }
-
-    private void AccumulatePower()
-    {
-        // Power acc.
-        power += (2.5f *powerMod) * (Time.deltaTime * gainMod);
-        power = Mathf.Clamp(power, 1.0f, maxPower * powerMod);
-
-        float normalizedVal = power / (maxPower * powerMod);
-
-        // UI
-        _view.PowerBar.value = normalizedVal;
-        _view.PowerText.text = power.ToString();
-
-        // LineRenderer
-        bobber.UpdateLineRendererPosition(1, (Vector2)bobber.transform.position + (diff * normalizedVal));
-
-    }
-
-    private void CastLine()
-    {
-        // Deactivate accummulator
-        held = false;
-
-        // Calculate voice
-        Vector2 dir = diff.normalized;
-        bobber.AddImmediateForce(dir * power);
-
-        // Reset power
-        power = 0.0f;
-
-        // Disable cursor
-        cursor.gameObject.SetActive(false);
-    }
-
     private void Reset()
     {
-        bobber.ResetBobber();
+        fsm.SetState(new PlayerState_ReadyToCast(fsm));
     }
 }
