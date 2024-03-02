@@ -1,18 +1,23 @@
-using UnityEngine;
+using System.Collections.Generic;
 
 public class FSM
 {
     State currentState;
-    public FSM(State initialState)
-        => currentState = initialState;
 
-    public void SetState(State state)
+    public FSM() { }
+
+    public void SetState(State state, Dictionary<string, object> blackboard)
     {
-        currentState.OnStateExit();
+        if (currentState != null)
+            currentState.OnStateExit(blackboard);
+
         currentState = state;
-        currentState.OnStateEnter();
+        currentState.OnStateEnter(blackboard);
     }
 
-    public void UpdateState()
-        => currentState.UpdateState();
+    public void UpdateState(Dictionary<string, object> blackboard)
+    {
+        if (currentState != null)
+            currentState.UpdateState(blackboard);
+    }
 }

@@ -37,9 +37,16 @@ public class PlayerState_Casting : State
             powerMod = (float)obj;
         if (blackboard.TryGetValue("powerBase", out obj))
             powerBase = (float)obj;
+
+        if (blackboard.TryGetValue("diff", out obj))
+            diff = (Vector2)obj;
     }
 
-    public override void OnStateExit(Dictionary<string, object> blackboard) { }
+    public override void OnStateExit(Dictionary<string, object> blackboard)
+    {
+        _view.PowerBar.value = 0;
+        _view.PowerText.text = "";
+    }
 
     public override void UpdateState(Dictionary<string, object> blackboard)
     {
@@ -47,13 +54,16 @@ public class PlayerState_Casting : State
 
         // Reset working vars
         if (Input.GetMouseButtonUp(0))
+        {
             CastLine();
+            fsm.SetState(new PlayerState_LineOut(fsm), blackboard);
+        }
     }
 
     private void AccumulatePower()
     {
         // Power acc.
-        power += 2.5f * (Time.deltaTime * gainMod);
+        power += powerBase * (Time.deltaTime * gainMod);
         power = Mathf.Clamp(power, 1.0f, maxPower);
 
         float normalizedVal = power / (maxPower);
@@ -68,7 +78,7 @@ public class PlayerState_Casting : State
 
     private void CastLine()
     {
-        // Calculate voice
+        // Calculate force
         Vector2 dir = diff.normalized;
         bobber.AddImmediateForce(dir * (power * powerMod));
 

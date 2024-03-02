@@ -4,16 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
-{ 
-    
+{
+
     [SerializeField] Bobber bobber;
     [SerializeField] PowerView _view;
     [SerializeField] Transform cursor;
     FSM fsm;
 
-    readonly Dictionary<string, object> blackboard
-        = new Dictionary<string, object>();
+    Dictionary<string, object> blackboard;
 
+    [Header("Casting Line")]
     [Tooltip("The maximum power achievable.")]
     [SerializeField] float maxPower = 20.0f;
     [Tooltip("The factor by which the overall power output is multiplied by.")]
@@ -22,23 +22,36 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float gainMod = 2.0f;
     [Tooltip("The default base rate of power.")]
     [SerializeField] float powerBase = 2.0f;
+
+    [Header("Reeling In")]
+    [SerializeField] float reelSpeed = 2.5f;
+    [SerializeField] float reelPower = 2.0f;
+    [SerializeField] float maxLineTension = 20.0f;
+
     private void Start()
     {
-        fsm = new FSM(new PlayerState_ReadyToCast(fsm)); // TODO: Cache states
+        blackboard = new Dictionary<string, object>
+        {
+            {"player", transform },
+            { "bobber", bobber },
+            { "powerView", _view },
+            { "cursor", cursor },
+            { "powerBase", gainMod },
+            { "maxPower", maxPower },
+            { "powerMod", powerMod },
+            { "gainMod", gainMod },
+            { "reelSpeed", reelSpeed },
+            {"reelPower", reelPower },
+            {"maxLineTension", maxLineTension }
+        };
 
-        blackboard.Add("bobber", bobber);
-        blackboard.Add("powerView", _view);
-        blackboard.Add("cursor", cursor);
-
-        blackboard.Add("powerBase", gainMod);
-        blackboard.Add("maxPower", maxPower);
-        blackboard.Add("powerMod", powerMod);
-        blackboard.Add("gainMod", gainMod);
+        fsm = new FSM();
+        fsm.SetState(new PlayerState_ReadyToCast(fsm), blackboard);
     }
 
     void Update()
     {
-        fsm.UpdateState();
+        fsm.UpdateState(blackboard);
 
         if (Input.GetKeyDown(KeyCode.Space))
             Reset();
@@ -46,6 +59,6 @@ public class PlayerController : MonoBehaviour
 
     private void Reset()
     {
-        fsm.SetState(new PlayerState_ReadyToCast(fsm));
+        fsm.SetState(new PlayerState_ReadyToCast(fsm), blackboard);
     }
 }

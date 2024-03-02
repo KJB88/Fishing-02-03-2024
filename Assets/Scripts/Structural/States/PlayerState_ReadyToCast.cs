@@ -44,7 +44,10 @@ public class PlayerState_ReadyToCast : State
     {
         // Active trigger
         if (Input.GetMouseButtonDown(0))
+        {
             BeginCasting(blackboard);
+            fsm.SetState(new PlayerState_Casting(fsm), blackboard);
+        }
     }
 
     private void Reset()
@@ -54,14 +57,20 @@ public class PlayerState_ReadyToCast : State
     {
         // Register click point to lock it in
         clickPoint = mainCam.ScreenToWorldPoint(Input.mousePosition);
-        blackboard["clickPoint"] = clickPoint;
+        if (blackboard.TryGetValue("clickPoint", out _))
+            blackboard["clickPoint"] = clickPoint;
+        else
+            blackboard.Add("clickPoint", clickPoint);
 
         // Activate landing cursor
         cursor.gameObject.SetActive(true);
         cursor.position = clickPoint;
 
         diff = clickPoint - bobber.GetPosition();
-        blackboard["diff"] = diff;
+        if (blackboard.TryGetValue("diff", out _))
+            blackboard["diff"] = clickPoint;
+        else
+            blackboard.Add("diff", diff);
 
         bobber.UpdateLineRendererPosition(0, bobber.GetPosition());
     }
