@@ -1,5 +1,3 @@
-using UnityEditor.VersionControl;
-
 public interface ISubscriber // Allows subscription to specific messages via the MessageBroker
 {
     /// <summary>
