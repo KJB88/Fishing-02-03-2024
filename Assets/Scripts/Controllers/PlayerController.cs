@@ -1,17 +1,12 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using KBGDLib.Structural;
-using KBGDLib.Communicators;
 
 public class PlayerController : MonoBehaviour
-{
-    FiniteStateMachine fsm;
-    Blackboard playerBlackboard;
-
-    // State Library
-    [SerializeField] BobberManager bobber;
-    PowerManager powerManager;
+{ 
+    [SerializeField] Bobber bobber;
+    [SerializeField] PowerView _view;
+    Camera mainCam;
 
     bool held = false;
     float power = 0.0f;
@@ -23,15 +18,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        ServiceLocator.RequestService("PowerManager", out IService service);
-        if (service != null)
-        {
-            powerManager = (PowerManager)service;
-        }
-
-
+        mainCam = Camera.main; // Cache camera
     }
-
     void Update()
     {
         // Active trigger
@@ -61,6 +49,7 @@ public class PlayerController : MonoBehaviour
         Debug.Log("MB Down!");
         held = true;
 
+        bobber.UpdateLineRendererPosition(0, bobber.transform.position);
     }
 
     private void AccumulatePower()
@@ -72,18 +61,20 @@ public class PlayerController : MonoBehaviour
         float normalizedVal = power / (maxPower * powerMod);
 
         // UI
-        powerBar.value = normalizedVal;
-        text.text = power.ToString();
+        _view.PowerBar.value = normalizedVal;
+        _view.PowerText.text = power.ToString();
 
         // LineRenderer
-        bobber.SetLineRendererPosition(1, bobber.GetPosition() + (diff * normalizedVal));
+        bobber.UpdateLineRendererPosition(1, (Vector2)bobber.transform.position + (diff * normalizedVal));
+        //lineRenderer.SetPosition(1, clickPoint); // Static line
+
     }
 
     private void CastLine()
     {
         Debug.Log("MB Up!");
         held = false;
-        bobber.AddImmediateForceToBobber(dir * power);
+        bobber.AddImmediateForce(dir * power);
         power = 0.0f;
     }
 
@@ -95,7 +86,7 @@ public class PlayerController : MonoBehaviour
 
     void CalculateDirection()
     {
-        clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        clickPoint = mainCam.ScreenToWorldPoint(Input.mousePosition);
 
         diff = clickPoint - bobber.GetPosition();
         dir = diff.normalized;
