@@ -1,5 +1,5 @@
-# Fishing_aGaD_02-03-2024
-Theme: Fishing 02/03/2024 (a Game a Day Challenge).
+# Fishing (A Game in a Day) 02-03-2024
+Theme: Fishing 02/03/2024 (a Game a in Day Challenge).
 Time spent: 8.5hours
 
 CONTROLS:
